@@ -39,9 +39,6 @@ public class OptionPanel extends JPanel {
 
         toolArea = new JPanel(new BorderLayout());
         this.add(toolArea, BorderLayout.NORTH);
-
-        histogramPanel = new HistogramPanel(photoPanel, this);
-        this.add(histogramPanel, BorderLayout.CENTER);
     }
 
     /**

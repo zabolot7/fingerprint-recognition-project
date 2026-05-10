@@ -1466,5 +1466,15 @@ public class ImageProcessor {
         return applyMorphology(originalMatrix, structuralElement, mode, false);
     }
 
+    public static int[][][] applyOpening(int[][][] originalMatrix, boolean[][] structuralElement, OptionPanel.BoundaryMode mode) {
+        int [][][] temp = applyErosion(originalMatrix, structuralElement, mode);
+        return applyDilation(temp, structuralElement, mode);
+    }
+
+    public static int[][][] applyClosing(int[][][] originalMatrix, boolean[][] structuralElement, OptionPanel.BoundaryMode mode) {
+        int [][][] temp = applyDilation(originalMatrix, structuralElement, mode);
+        return applyErosion(temp, structuralElement, mode);
+    }
+
 
 }

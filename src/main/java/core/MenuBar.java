@@ -1,11 +1,14 @@
 package core;
 
 import optionspanels.BinarizationPanel;
+import optionspanels.FingerprintPanel;
 import optionspanels.HistogramPanel;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -44,10 +47,20 @@ public class MenuBar extends JMenuBar {
 
         optionPanel.setEditMenu(editMenu);
 
+        JMenu fingerprintTab = new JMenu("Fingerprint analysis");
+
+        fingerprintTab.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                optionPanel.loadToolPanel(new FingerprintPanel(photoPanel, optionPanel));
+            }
+        });
+
         add(fileMenu);
         add(displayMenu);
         add(editMenu);
         add(settingsMenu);
+        add(fingerprintTab);
     }
 
     /**
@@ -247,6 +260,35 @@ public class MenuBar extends JMenuBar {
 
         settingsMenu.add(convMenu);
         return settingsMenu;
+    }
+
+    /**
+     * A reusable helper method to open a JFileChooser.
+     * Kept here because IrisRecognitionPanel and IrisComparisonPanel rely on it!
+     * * @param parentComponent The UI component calling this dialog (for centering).
+     * @param dialogTitle The title of the window.
+     * @return The selected File object, or null if the user canceled.
+     */
+    public static File chooseImageFile(java.awt.Component parentComponent, String dialogTitle) {
+        JFileChooser fc = new JFileChooser();
+
+        if (dialogTitle != null && !dialogTitle.isEmpty()) {
+            fc.setDialogTitle(dialogTitle);
+        }
+
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Image files", "jpg", "jpeg", "png", "bmp");
+        fc.setFileFilter(filter);
+        fc.setAcceptAllFileFilterUsed(false);
+
+        fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+
+        int result = fc.showOpenDialog(parentComponent);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            return fc.getSelectedFile();
+        }
+
+        return null;
     }
 
 }

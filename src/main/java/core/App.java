@@ -33,7 +33,7 @@ public class App {
             PhotoPanel photoPanel = new PhotoPanel();
 
             OptionPanel optionPanel = new OptionPanel(photoPanel);
-            optionPanel.setPreferredSize(new Dimension(400, 0));
+            optionPanel.setPreferredSize(new Dimension(600, 0));
 
             MenuBar menuBar = new MenuBar(frame, photoPanel, optionPanel);
             frame.setJMenuBar(menuBar);

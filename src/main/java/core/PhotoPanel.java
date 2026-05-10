@@ -28,6 +28,7 @@ public class PhotoPanel extends JPanel {
     private BufferedImage image;
     private Image scaledImage;
     private int[][][] imageMatrix;
+    private String currentFilename = "testImage";
 
     private JPanel wrapperPanel;
     private JPanel imageCanvas;
@@ -87,7 +88,7 @@ public class PhotoPanel extends JPanel {
 
         this.add(wrapperPanel, gbcMain);
 
-        File imageFile = new File("src/testImage.jpg");
+        File imageFile = new File("src/testImage.bmp");
         try {
             image = ImageIO.read(imageFile);
             createImageMatrix();
@@ -275,6 +276,25 @@ public class PhotoPanel extends JPanel {
     }
 
     /**
+     * Converts a BufferedImage into a 3D pixel array [Y][X][RGB].
+     */
+    public int[][][] createImageMatrix(BufferedImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int[][][] imageMatrix = new int[height][width][3];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int rgb = image.getRGB(x, y);
+                imageMatrix[y][x][0] = (rgb >> 16) & 0xFF;
+                imageMatrix[y][x][1] = (rgb >> 8) & 0xFF;
+                imageMatrix[y][x][2] = rgb & 0xFF;
+            }
+        }
+
+        return imageMatrix;
+    }
+
+    /**
      * Retrieves the current image matrix.
      *
      * @return The 3D array [Y][X][RGB].
@@ -293,7 +313,7 @@ public class PhotoPanel extends JPanel {
         int height = imageMatrix.length;
         int width = imageMatrix[0].length;
 
-        if (image.getWidth() != width || image.getHeight() != height) {
+        if (image.getWidth() != width || image.getHeight() != height || image.getType() != BufferedImage.TYPE_INT_RGB) {
             image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             recalculateSize();
         }
@@ -321,5 +341,12 @@ public class PhotoPanel extends JPanel {
      */
     public BufferedImage getBufferedImage() {
         return this.image;
+    }
+
+    /**
+     * Updates the current filename being tracked by the panel.
+     */
+    public void setCurrentFilename(String currentFilename) {
+        this.currentFilename = currentFilename;
     }
 }
