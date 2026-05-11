@@ -134,4 +134,16 @@ public class OptionPanel extends JPanel {
         }
         updateHistogram();
     }
+
+    /**
+     * Resets both Undo and Revert states when a completely new image is imported from a tool panel.
+     *
+     * @param newMatrix The 3D array representing the newly loaded image.
+     */
+    public void resetUndoAndRevertStates(int[][][] newMatrix) {
+        if (editMenu != null && newMatrix != null) {
+            editMenu.setLastImageMatrix(newMatrix);
+            editMenu.setOriginalImageMatrix(newMatrix);
+        }
+    }
 }

@@ -82,7 +82,7 @@ public class FingerprintPanel extends JPanel{
 
         JButton roiBtn = new JButton("6. Find the region of interest");
         JLabel thresholdLabel = new JLabel("Noise threshold:");
-        JSpinner thresholdSpinner = new JSpinner(new SpinnerNumberModel(10, 0, 100, 1));
+        JSpinner thresholdSpinner = new JSpinner(new SpinnerNumberModel(8, 0, 100, 1));
 
         roiContainer.add(roiBtn);
         roiContainer.add(Box.createHorizontalStrut(5));
@@ -120,6 +120,8 @@ public class FingerprintPanel extends JPanel{
                 photoPanel.setImageMatrix(originalMatrix);
                 photoPanel.setCurrentFilename(file.getName());
 
+                parentPanel.resetUndoAndRevertStates(originalMatrix);
+
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, "Error reading image file.", "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
@@ -127,33 +129,38 @@ public class FingerprintPanel extends JPanel{
         });
 
         grayscaleBtn.addActionListener(e -> {
+            parentPanel.saveUndoState(photoPanel.getImageMatrix());
             int[][][] newMatrix = ImageProcessor.applyGrayscale(photoPanel.getImageMatrix(), GrayscalePanel.GrayscaleOptions.LUMINANCE);
             photoPanel.setImageMatrix(newMatrix);
         });
 
         brightnessBtn.addActionListener(e -> {
             // changing the brightness range to (0, 255)
+            parentPanel.saveUndoState(photoPanel.getImageMatrix());
             int[][][] newMatrix = ImageProcessor.applyBrightnessRange(photoPanel.getImageMatrix(), 0, 255);
             photoPanel.setImageMatrix(newMatrix);
         });
 
         convolutionBtn.addActionListener(e -> {
+            parentPanel.saveUndoState(photoPanel.getImageMatrix());
             int[][][] newMatrix = ImageProcessor.applyConvolution(photoPanel.getImageMatrix(), getGaussianMask(0.6), boundaryMode);
             photoPanel.setImageMatrix(newMatrix);
         });
 
         binarizationBtn.addActionListener(e -> {
-            // applying Bernsen with window size 15 and contrast limit 16 - we could still test the parameters
-            int[][][] newMatrix = ImageProcessor.applyBernsen(photoPanel.getImageMatrix(), 15, 16, boundaryMode);
+            // applying Bernsen with window size 9 and contrast limit 50 - we could still test the parameters
+            parentPanel.saveUndoState(photoPanel.getImageMatrix());
+            int[][][] newMatrix = ImageProcessor.applyBernsen(photoPanel.getImageMatrix(), 9, 50, boundaryMode);
             photoPanel.setImageMatrix(newMatrix);
         });
 
         morphologyBtn.addActionListener(e -> {
-            // only closing with a horizontal line for now, not sure if it could be better
+            // only closing with a 3x3 cross for now, not sure if it could be better
+            parentPanel.saveUndoState(photoPanel.getImageMatrix());
             boolean[][] horizontalLineMask = {
-                    {false, false, false},
+                    {false, true, false},
                     {true,  true,  true },
-                    {false, false, false}
+                    {false, true, false}
             };
             int[][][] newMatrix = ImageProcessor.applyClosing(photoPanel.getImageMatrix(), horizontalLineMask, boundaryMode);
             photoPanel.setImageMatrix(newMatrix);
@@ -161,6 +168,7 @@ public class FingerprintPanel extends JPanel{
         });
 
         roiBtn.addActionListener(e -> {
+            parentPanel.saveUndoState(photoPanel.getImageMatrix());
             int threshold = (Integer) thresholdSpinner.getValue();
 
             if (cleanMatrixForCrop == null) {
@@ -176,6 +184,7 @@ public class FingerprintPanel extends JPanel{
         });
 
         cropBtn.addActionListener(e -> {
+            parentPanel.saveUndoState(photoPanel.getImageMatrix());
             if (roiBoundaries == null || cleanMatrixForCrop == null) {
                 JOptionPane.showMessageDialog(this, "Please find the ROI first", "Error", JOptionPane.WARNING_MESSAGE);
                 return;
@@ -187,6 +196,7 @@ public class FingerprintPanel extends JPanel{
         });
 
         thinningBtn.addActionListener(e -> {
+            parentPanel.saveUndoState(photoPanel.getImageMatrix());
             String selectedAlgo = (String) algorithmComboBox.getSelectedItem();
             int[][][] currentMatrix = photoPanel.getImageMatrix();
             int[][][] newMatrix = currentMatrix;
