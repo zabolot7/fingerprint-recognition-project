@@ -1,7 +1,36 @@
 package core;
 
 public class FingerprintProcessor {
-    private static final boolean[] KMM_DELETION_TABLE = createKMMDeletionTable();
+    private static final boolean[] KMM_DELETION_TABLE = createTable(new int[]{
+            3, 5, 7, 12, 13, 14, 15, 20, 21, 22, 23, 28, 29, 30, 31, 48,
+            52, 53, 54, 55, 56, 60, 61, 62, 63, 65, 67, 69, 71, 77, 79, 80,
+            81, 83, 84, 85, 86, 87, 88, 89, 91, 92, 93, 94, 95, 97, 99, 101,
+            103, 109, 111, 112, 113, 115, 116, 117, 118, 119, 120, 121, 123, 124, 125, 126,
+            127, 131, 133, 135, 141, 143, 149, 151, 157, 159, 181, 183, 189, 191, 192, 193,
+            195, 197, 199, 205, 207, 208, 209, 211, 212, 213, 214, 215, 216, 217, 219, 220,
+            221, 222, 223, 224, 225, 227, 229, 231, 237, 239, 240, 241, 243, 244, 245, 246,
+            247, 248, 249, 251, 252, 253, 254, 255
+    });
+    private static final boolean[] A0 = createTable(new int[]{3, 6, 7, 12, 14, 15, 24, 28, 30, 31, 48, 56, 60, 62, 63, 96, 112, 120, 124, 126, 127, 129, 131, 135, 143, 159, 191, 192, 193, 195, 199, 207, 223, 224, 225, 227, 231, 239, 240, 241, 243, 247, 248, 249, 251, 252, 253, 254});
+    private static final boolean[] A1 = createTable(new int[]{7, 14, 28, 56, 112, 131, 193, 224});
+    private static final boolean[] A2 = createTable(new int[]{7, 14, 15, 28, 30, 56, 60, 112, 120, 131, 135, 193, 195, 224, 225, 240});
+    private static final boolean[] A3 = createTable(new int[]{7, 14, 15, 28, 30, 31, 56, 60, 62, 112, 120, 124, 131, 135, 143, 193, 195, 199, 224, 225, 227, 240, 241, 248});
+    private static final boolean[] A4 = createTable(new int[]{7, 14, 15, 28, 30, 31, 56, 60, 62, 63, 112, 120, 124, 126, 131, 135, 143, 159, 193, 195, 199, 207, 224, 225, 227, 231, 240, 241, 243, 248, 249, 252});
+    private static final boolean[] A5 = createTable(new int[]{7, 14, 15, 28, 30, 31, 56, 60, 62, 63, 112, 120, 124, 126, 131, 135, 143, 159, 191, 193, 195, 199, 207, 224, 225, 227, 231, 239, 240, 241, 243, 248, 249, 251, 252, 254});
+    private static final boolean[] A1_PIX = createTable(new int[]{3, 6, 7, 12, 14, 15, 24, 28, 30, 31, 48, 56, 60, 62, 63, 96, 112, 120, 124, 126, 127, 129, 131, 135, 143, 159, 191, 192, 193, 195, 199, 207, 223, 224, 225, 227, 231, 239, 240, 241, 243, 247, 248, 249, 251, 252, 253, 254});
+
+    /**
+     * A helper function to create the Deletion Table needed in the KMM and K3M algorithms.
+     *
+     * @return The Deletion Table.
+     */
+    private static boolean[] createTable(int[] weights) {
+        boolean[] table = new boolean[256];
+        for (int w : weights) {
+            table[w] = true;
+        }
+        return table;
+    }
 
     /**
      * Calculates ROI (Region of Interest) coordinates based on projections while ignoring the background noise.
@@ -201,38 +230,6 @@ public class FingerprintProcessor {
     }
 
     /**
-     * A helper function to create the Deletion Table needed in the KMM algorithm.
-     *
-     * @return The Deletion Table.
-     */
-    private static boolean[] createKMMDeletionTable() {
-        boolean[] table = new boolean[256];
-
-        int[] weights = {
-                3, 5, 7, 12, 13, 14, 15, 20,
-                21, 22, 23, 28, 29, 30, 31, 48,
-                52, 53, 54, 55, 56, 60, 61, 62,
-                63, 65, 67, 69, 71, 77, 79, 80,
-                81, 83, 84, 85, 86, 87, 88, 89,
-                91, 92, 93, 94, 95, 97, 99, 101,
-                103, 109, 111, 112, 113, 115, 116, 117,
-                118, 119, 120, 121, 123, 124, 125, 126,
-                127, 131, 133, 135, 141, 143, 149, 151,
-                157, 159, 181, 183, 189, 191, 192, 193,
-                195, 197, 199, 205, 207, 208, 209, 211,
-                212, 213, 214, 215, 216, 217, 219, 220,
-                221, 222, 223, 224, 225, 227, 229, 231,
-                237, 239, 240, 241, 243, 244, 245, 246,
-                247, 248, 249, 251, 252, 253, 254, 255
-        };
-
-        for (int w : weights) {
-            table[w] = true;
-        }
-        return table;
-    }
-
-    /**
      * A helper function checking if the selected weight is in the Deletion Table.
      *
      * @param weight Pixel's weight.
@@ -319,6 +316,91 @@ public class FingerprintProcessor {
                                 bitMatrix[y][x] = 1;
                             }
                         }
+                    }
+                }
+            }
+        }
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int color = (bitMatrix[y][x] == 1) ? 0 : 255;
+                newMatrix[y][x][0] = color;
+                newMatrix[y][x][1] = color;
+                newMatrix[y][x][2] = color;
+            }
+        }
+
+        return newMatrix;
+    }
+
+    /**
+     * Applies the K3M algorithm to the matrix.
+     *
+     * @param originalMatrix The 3D array representing the image.
+     * @return A new 3D array representing the image after KMM algorithm.
+     */
+    public static int[][][] applyK3M(int[][][] originalMatrix) {
+        int height = originalMatrix.length;
+        int width = originalMatrix[0].length;
+        int[][][] newMatrix = new int[height][width][3];
+
+        int[][] bitMatrix = new int[height][width];
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (originalMatrix[y][x][0] == 0) {
+                    bitMatrix[y][x] = 1; // marking all black pixels as ones
+                }
+            }
+        }
+
+        boolean hasChanged = true;
+        boolean[][] phases = {A1, A2, A3, A4, A5};
+
+        while (hasChanged) {
+            hasChanged = false;
+
+            for (int y = 1; y < height - 1; y++) {
+                for (int x = 1; x < width - 1; x++) {
+                    if (bitMatrix[y][x] == 1) {
+                        int weight = calculateWeight(bitMatrix, x, y);
+                        if (A0[weight]) {
+                            bitMatrix[y][x] = 2; // mark as a border
+                        }
+                    }
+                }
+            }
+
+            for (boolean[] currentPhaseArray : phases) {
+                for (int y = 1; y < height - 1; y++) {
+                    for (int x = 1; x < width - 1; x++) {
+                        if (bitMatrix[y][x] == 2) {
+                            int weight = calculateWeight(bitMatrix, x, y);
+                            if (currentPhaseArray[weight]) {
+                                bitMatrix[y][x] = 0; // delete pixel
+                                hasChanged = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (int y = 1; y < height - 1; y++) {
+                for (int x = 1; x < width - 1; x++) {
+                    if (bitMatrix[y][x] == 2) {
+                        bitMatrix[y][x] = 1;
+                    }
+                }
+            }
+        }
+
+        // Thinning to a one-pixel width skeleton
+        for (int y = 1; y < height - 1; y++) {
+            for (int x = 1; x < width - 1; x++) {
+                if (bitMatrix[y][x] == 1) {
+                    int weight = calculateWeight(bitMatrix, x, y);
+                    if (A1_PIX[weight]) {
+                        bitMatrix[y][x] = 0;
                     }
                 }
             }

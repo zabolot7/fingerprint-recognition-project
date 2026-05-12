@@ -100,7 +100,7 @@ public class FingerprintPanel extends JPanel{
         JButton thinningBtn = new JButton("8. Apply thinning");
         JLabel algorithmLabel = new JLabel("Algorithm:");
 
-        String[] algorithms = {"KMM"};
+        String[] algorithms = {"KMM", "K3M"};
         JComboBox<String> algorithmComboBox = new JComboBox<>(algorithms);
 
         thinningContainer.add(thinningBtn);
@@ -203,6 +203,8 @@ public class FingerprintPanel extends JPanel{
 
             if ("KMM".equals(selectedAlgo)) {
                 newMatrix = FingerprintProcessor.applyKMM(currentMatrix);
+            } else if ("K3M".equals(selectedAlgo)) {
+                newMatrix = FingerprintProcessor.applyK3M(currentMatrix);
             } else {
                 // newMatrix = FingerprintProcessor.applyMorphologicalThinning(currentMatrix);
             }
